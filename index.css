@@ -1,9 +1,64 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&family=Roboto:wght@300;400;700&display=swap');
 
+:root {
+    --font-color: black;
+}
+
 body {
+    color: var(--font-color);
     font-family: 'Nunito', sans-serif;
     margin: 0;
     height: 100%;
+}
+
+.top-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0.3rem 2rem;
+    margin-bottom: 1rem;
+}
+
+.navbar {
+    margin-right: 10rem;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.navbar li {
+    padding: 0.5em;
+    margin: 0 5px;
+}
+
+.navbar a {
+    color: var(--font-color);
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    font-weight: bold;
+}
+.navbar a::before {
+    display: block;
+    content: attr(title);
+    font-weight: bold;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.presentation {
+    margin: 5em;
+    display: flex;
+    justify-content: center;
 }
 
 .tooltip {
@@ -30,7 +85,8 @@ body {
 
 .heading {
     font-family: 'Roboto', sans-serif;
-    padding: 0.3rem 2rem;
+    padding: 0 2rem;
+    margin: 0;
 }
 
 .content {
