@@ -46,6 +46,11 @@ body {
 .navbar a:hover {
     font-weight: bold;
 }
+
+.navbar a:visited {
+    color: #4E1069;
+}
+
 .navbar a::before {
     display: block;
     content: attr(title);
