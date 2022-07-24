@@ -67,7 +67,7 @@ function displayDate(date) {
       y: height / 2,
       data: parseInt(latestSet[`${russia + type}`]),
       r: parseInt(latestSet[`${russia + type}`]),
-      class: russia,
+      country: russia,
       type: type.slice(1),
     };
     let uObj = {
@@ -75,7 +75,7 @@ function displayDate(date) {
       y: height / 2,
       data: parseInt(latestSet[`${ukraine + type}`]),
       r: parseInt(latestSet[`${ukraine + type}`]),
-      class: ukraine,
+      country: ukraine,
       type: type.slice(1),
     };
 
@@ -89,6 +89,11 @@ function displayDate(date) {
     .domain([russia, ukraine])
     .range(["#FF7E7E", "#656BFF"]);
 
+  const countryCluster = d3
+    .scaleOrdinal()
+    .domain([russia, ukraine])
+    .range([width / 3, (width / 3) * 2]);
+
   let node = svg
     .append("g")
     .attr("id", "nodes")
@@ -97,7 +102,20 @@ function displayDate(date) {
     .enter()
     .append("circle")
     .attr("r", (d) => d.r * 0.1)
-    .style("fill", (d) => countryColorScale(d.class));
+    .style("fill", (d) => countryColorScale(d.country))
+    .on("mouseover", (event, d) => {
+      d3.select(event.target).attr("class", "circle-border");
+      console.log(d);
+      d3.selectAll("circle").style("opacity", (c) => {
+        if (c.type !== d.type) return 0.5;
+      });
+    })
+    .on("mouseout", (event, d) => {
+      d3.select(event.target).attr("class", "circle-border");
+      d3.selectAll("circle").style("opacity", (c) => {
+        if (c.type !== d.type) return 1;
+      });
+    });
 
   let simulation = d3
     .forceSimulation()
@@ -107,7 +125,7 @@ function displayDate(date) {
       d3
         .forceX()
         .strength(0.1)
-        .x(width / 2)
+        .x((d) => countryCluster(d.country))
     )
     .force(
       "y",
