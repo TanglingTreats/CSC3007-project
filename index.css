@@ -87,8 +87,10 @@ body {
     border: 5px solid black;
 }
 
-.circle-border {
-    border: 5px solid black;
+.circle-elem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .heading {
