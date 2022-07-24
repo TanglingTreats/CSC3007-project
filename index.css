@@ -66,7 +66,8 @@ body {
     justify-content: center;
 }
 
-.tooltip {
+#tooltip {
+    position: absolute;
     padding: 10px;
     background-color: white;
     border-radius: 10px;
@@ -85,12 +86,6 @@ body {
 
 .scalable-svg {
     border: 5px solid black;
-}
-
-.circle-elem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .heading {

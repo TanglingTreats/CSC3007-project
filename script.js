@@ -97,6 +97,10 @@ function displayDate(date) {
   const zoomLevel = 0.1;
   const limit = 35;
 
+  // Create Tooltip
+  let tooltip = d3.select("#tooltip").style("opacity", 0);
+  tooltip.style("top", height / 3).style("left", width / 2);
+
   let node = svg
     .append("g")
     .attr("id", "nodes")
@@ -118,6 +122,7 @@ function displayDate(date) {
       d3.selectAll("text").style("opacity", (c) => {
         if (c.type !== d.type) return 0.5;
       });
+      tooltip.html(`${d.type}`).style("opacity", 1);
     })
     .on("mouseout", (event, d) => {
       d3.select(event.target).attr("class", "circle-border");
@@ -127,6 +132,7 @@ function displayDate(date) {
       d3.selectAll("text").style("opacity", (c) => {
         if (c.type !== d.type) return 1;
       });
+      tooltip.style("opacity", 0);
     });
 
   let typeLabel = node
