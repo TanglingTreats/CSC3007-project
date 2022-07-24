@@ -7,7 +7,7 @@ const reader = new FileReader();
 
 const dateSpan = document.getElementById("current-date");
 
-const width = 800;
+const width = 1300;
 const height = 600;
 
 let svg = d3.select("svg").attr("width", width).attr("height", height);
@@ -89,10 +89,11 @@ function displayDate(date) {
     .domain([russia, ukraine])
     .range(["#FF7E7E", "#656BFF"]);
 
+  const oneThirdWidth = width / 3;
   const countryCluster = d3
     .scaleOrdinal()
     .domain([russia, ukraine])
-    .range([width / 3, (width / 3) * 2]);
+    .range([oneThirdWidth, oneThirdWidth * 2 + oneThirdWidth / 2]);
 
   let node = svg
     .append("g")
