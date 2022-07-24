@@ -129,9 +129,12 @@ function displayDate(date) {
       });
     });
 
-  let labels = node.append("text").text((d) => {
-    if (d.r * zoomLevel >= limit) return `${d.type}\n${d.data}`;
-  });
+  let labels = node
+    .append("text")
+    .text((d) => {
+      if (d.r * zoomLevel >= limit) return `${d.type}\n${d.data}`;
+    })
+    .attr("text-anchor", "middle");
 
   let simulation = d3
     .forceSimulation()
