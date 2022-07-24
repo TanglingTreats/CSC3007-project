@@ -129,9 +129,21 @@ function displayDate(date) {
       });
     });
 
-  let labels = node.append("text").text((d) => {
-    if (d.r * zoomLevel >= limit) return `${d.type}\n${d.data}`;
-  });
+  let typeLabel = node
+    .append("text")
+    .text((d) => {
+      if (d.r * zoomLevel >= limit) return `${d.type}`;
+    })
+    .attr("dy", "-0.5em")
+    .attr("text-anchor", "middle");
+
+  let dataLabel = node
+    .append("text")
+    .text((d) => {
+      if (d.r * zoomLevel >= limit) return `${d.data}`;
+    })
+    .attr("dy", "0.5em")
+    .attr("text-anchor", "middle");
 
   let simulation = d3
     .forceSimulation()
