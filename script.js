@@ -82,32 +82,40 @@ function displayDate(date) {
     return [rObj, uObj];
   });
 
-  console.log(dataPoints);
+  const oneThirdWidth = width / 3;
 
   const countryColorScale = d3
     .scaleOrdinal()
     .domain([russia, ukraine])
     .range(["#FF7E7E", "#656BFF"]);
 
-  const oneThirdWidth = width / 3;
   const countryCluster = d3
     .scaleOrdinal()
     .domain([russia, ukraine])
     .range([oneThirdWidth, oneThirdWidth * 2 + oneThirdWidth / 2]);
 
+  const zoomLevel = 0.1;
+  const limit = 35;
+
   let node = svg
     .append("g")
     .attr("id", "nodes")
-    .selectAll("circle")
+    .selectAll("g")
     .data(dataPoints)
     .enter()
+    .append("g");
+
+  let circle = node
     .append("circle")
-    .attr("r", (d) => d.r * 0.1)
+    .attr("r", (d) => d.r * zoomLevel)
     .style("fill", (d) => countryColorScale(d.country))
     .on("mouseover", (event, d) => {
       d3.select(event.target).attr("class", "circle-border");
       console.log(d);
       d3.selectAll("circle").style("opacity", (c) => {
+        if (c.type !== d.type) return 0.5;
+      });
+      d3.selectAll("text").style("opacity", (c) => {
         if (c.type !== d.type) return 0.5;
       });
     })
@@ -116,7 +124,14 @@ function displayDate(date) {
       d3.selectAll("circle").style("opacity", (c) => {
         if (c.type !== d.type) return 1;
       });
+      d3.selectAll("text").style("opacity", (c) => {
+        if (c.type !== d.type) return 1;
+      });
     });
+
+  let labels = node.append("text").text((d) => {
+    if (d.r * zoomLevel >= limit) return `${d.type}\n${d.data}`;
+  });
 
   let simulation = d3
     .forceSimulation()
@@ -144,6 +159,7 @@ function displayDate(date) {
         .radius((d) => d.r * 0.1)
     )
     .on("tick", (d) => {
-      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+      //circle.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+      node.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
     });
 })();
