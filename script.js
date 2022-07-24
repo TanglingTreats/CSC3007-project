@@ -2,14 +2,16 @@ const reader = new FileReader();
 const target = "Russia-Ukraine Equipment Losses - Original.csv";
 
 (async () => {
-  // Get data from CSV File
-  const res = await JSC.fetch(target);
+  const res = await fetch(target, {
+    method: "get",
+    headers: {
+      "content-type": "text/csv;charset=UTF-8",
+    },
+  });
 
-  // Get text data from response
-  const csvData = await res.text();
+  const csvString = await res.text();
 
-  // Get JSON from comma-separated CSV string
-  const data = JSC.csv2Json(csvData);
+  const data = d3.csvParse(csvString);
 
   console.log(data);
 })();
