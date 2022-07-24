@@ -115,16 +115,22 @@ function displayDate(date) {
       d3.selectAll("circle").style("opacity", (c) => {
         if (c.type !== d.type) return 0.5;
       });
+      d3.selectAll("text").style("opacity", (c) => {
+        if (c.type !== d.type) return 0.5;
+      });
     })
     .on("mouseout", (event, d) => {
       d3.select(event.target).attr("class", "circle-border");
       d3.selectAll("circle").style("opacity", (c) => {
         if (c.type !== d.type) return 1;
       });
+      d3.selectAll("text").style("opacity", (c) => {
+        if (c.type !== d.type) return 1;
+      });
     });
 
   let labels = node.append("text").text((d) => {
-    if (d.r * zoomLevel >= limit) return d.type;
+    if (d.r * zoomLevel >= limit) return `${d.type}\n${d.data}`;
   });
 
   let simulation = d3
