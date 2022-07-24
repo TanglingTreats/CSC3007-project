@@ -88,6 +88,10 @@ body {
     height: 600px;
 }
 
+.circle-border {
+    border: 5px solid black;
+}
+
 .heading {
     font-family: 'Roboto', sans-serif;
     padding: 0 2rem;
