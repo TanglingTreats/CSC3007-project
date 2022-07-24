@@ -9,6 +9,7 @@ const dateSpan = document.getElementById("current-date");
 
 const width = 800;
 const height = 600;
+
 let svg = d3.select("svg").attr("width", width).attr("height", height);
 
 const russia = "Russia";
@@ -65,6 +66,7 @@ function displayDate(date) {
       x: width / 2,
       y: height / 2,
       data: parseInt(latestSet[`${russia + type}`]),
+      r: parseInt(latestSet[`${russia + type}`]),
       class: russia,
       type: type.slice(1),
     };
@@ -72,6 +74,7 @@ function displayDate(date) {
       x: width / 2,
       y: height / 2,
       data: parseInt(latestSet[`${ukraine + type}`]),
+      r: parseInt(latestSet[`${ukraine + type}`]),
       class: ukraine,
       type: type.slice(1),
     };
@@ -80,4 +83,48 @@ function displayDate(date) {
   });
 
   console.log(dataPoints);
+
+  const countryColorScale = d3
+    .scaleOrdinal()
+    .domain([russia, ukraine])
+    .range(["#FF7E7E", "#656BFF"]);
+
+  let node = svg
+    .append("g")
+    .attr("id", "nodes")
+    .selectAll("circle")
+    .data(dataPoints)
+    .enter()
+    .append("circle")
+    .attr("r", (d) => d.r * 0.1)
+    .style("fill", (d) => countryColorScale(d.class));
+
+  let simulation = d3
+    .forceSimulation()
+    .nodes(dataPoints)
+    .force(
+      "x",
+      d3
+        .forceX()
+        .strength(0.1)
+        .x(width / 2)
+    )
+    .force(
+      "y",
+      d3
+        .forceY()
+        .strength(0.1)
+        .y(height / 2)
+    )
+    .force("charge", d3.forceManyBody().strength(10))
+    .force(
+      "collide",
+      d3
+        .forceCollide()
+        .strength(1)
+        .radius((d) => d.r * 0.1)
+    )
+    .on("tick", (d) => {
+      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+    });
 })();
