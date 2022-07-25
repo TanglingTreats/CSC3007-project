@@ -6,6 +6,7 @@ const googTarget =
 const reader = new FileReader();
 
 const dateSpan = document.getElementById("current-date");
+const filters = document.getElementById("filters");
 
 const width = 1300;
 const height = 600;
@@ -40,6 +41,53 @@ function displayDate(date) {
   dateSpan.innerText = date;
 }
 
+function createFilters() {
+  // Create all
+  const type = "All";
+  const checkbox = document.createElement("input");
+  checkbox.id = type.toLowerCase();
+  checkbox.classList.add("checkbox");
+  checkbox.type = "checkbox";
+  checkbox.value = type.toLowerCase();
+  checkbox.name = type.toLowerCase();
+  checkbox.checked = true;
+  checkbox.onclick = () => {
+    if (checkbox.checked) {
+      console.log(type);
+    }
+  };
+  const checkboxLabel = document.createElement("label");
+  checkboxLabel.for = type.toLowerCase();
+  checkboxLabel.innerHTML = type;
+
+  filters.appendChild(checkbox);
+  filters.appendChild(checkboxLabel);
+
+  // Create unit types
+  for (let i in unitTypes) {
+    console.log(unitTypes[i].slice(1));
+    const type = unitTypes[i].slice(1);
+    const checkbox = document.createElement("input");
+    checkbox.id = type.toLowerCase();
+    checkbox.classList.add("checkbox");
+    checkbox.type = "checkbox";
+    checkbox.value = type.toLowerCase();
+    checkbox.name = type.toLowerCase();
+    checkbox.onclick = () => {
+      if (checkbox.checked) {
+        console.log(type);
+      }
+    };
+
+    const checkboxLabel = document.createElement("label");
+    checkboxLabel.for = type.toLowerCase();
+    checkboxLabel.innerHTML = type;
+
+    filters.appendChild(checkbox);
+    filters.appendChild(checkboxLabel);
+  }
+}
+
 (async () => {
   const res = await fetch(target, {
     method: "get",
@@ -59,6 +107,7 @@ function displayDate(date) {
   console.log(latestSet);
 
   displayDate(formatDate(new Date(latestSet.Date)));
+  createFilters();
 
   // Create data point objects to pass into d3
   const dataPoints = unitTypes.flatMap((type) => {

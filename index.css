@@ -60,6 +60,20 @@ body {
     visibility: hidden;
 }
 
+#toolbar {
+    margin-left: 50px;
+    width: 100%;
+}
+#filters {
+    display: flex;
+    align-items: center;
+
+}
+
+#filters label {
+    margin-right: 10px;
+}
+
 .presentation {
     margin: 5em;
     display: flex;
@@ -73,6 +87,7 @@ body {
     border-radius: 10px;
     border: 1px solid black;
     text-transform: capitalize;
+    opacity: 0;
 }
 
 .cases.select {
