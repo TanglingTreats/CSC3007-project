@@ -7,8 +7,10 @@ const reader = new FileReader();
 
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
+const dateSlider = document.getElementById("date-slider");
 
 let currFilter = ["all"];
+let selectedDate = "";
 let totalData = [];
 let dataPoints = [];
 
@@ -301,12 +303,27 @@ function formatData(data) {
   const data = d3.csvParse(csvString);
 
   console.log(data);
+  // Format data
   totalData = formatData(data);
   const latestSet = totalData[totalData.length - 1];
 
-  displayDate(formatDate(new Date(latestSet.date)));
+  // Set slider attributes
+  dateSlider.setAttribute("max", totalData.length);
+  dateSlider.value = totalData.length;
+  dateSlider.oninput = (event) => {
+    const sliderValue = event.target.value - 1;
+    selectedDate = totalData[sliderValue].date;
+    displayDate(formatDate(new Date(selectedDate)));
+    dataPoints = totalData[sliderValue];
+    filterData();
+  };
+
+  // Set latest date
+  selectedDate = latestSet.date;
+  displayDate(formatDate(new Date(selectedDate)));
   createFilters();
 
+  // Set global data points to use
   dataPoints = latestSet;
   filterData();
 })();
