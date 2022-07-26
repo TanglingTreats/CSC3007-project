@@ -8,6 +8,7 @@ const reader = new FileReader();
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 const dateSlider = document.getElementById("date-slider");
+dateSlider.value = 50;
 
 let currFilter = ["all"];
 let selectedDate = "";
@@ -16,6 +17,18 @@ let dataPoints = [];
 
 const width = 1300;
 const height = 600;
+
+const oneThirdWidth = width / 3;
+
+const russiaOrigin = {
+  x: oneThirdWidth,
+  y: height / 2,
+};
+
+const ukraineOrigin = {
+  x: oneThirdWidth * 2 + oneThirdWidth / 2,
+  y: height / 2,
+};
 
 let svg = d3.select("svg").attr("width", width).attr("height", height);
 
@@ -37,8 +50,6 @@ const unitTypes = [
 
 const formatType = [...unitTypes, `_Total`];
 
-const oneThirdWidth = width / 3;
-
 const countryColorScale = d3
   .scaleOrdinal()
   .domain([russia, ukraine])
@@ -47,7 +58,7 @@ const countryColorScale = d3
 const countryCluster = d3
   .scaleOrdinal()
   .domain([russia, ukraine])
-  .range([oneThirdWidth, oneThirdWidth * 2 + oneThirdWidth / 2]);
+  .range([russiaOrigin.x, ukraineOrigin.x]);
 
 const zoomLevel = 0.1;
 const limit = 35;
@@ -86,7 +97,6 @@ function checkboxFunction(event) {
       }
     }
   } else {
-    console.log(checkbox.value);
     let allCheckbox = checkboxes.find((checkbox) => checkbox.value === "all");
 
     // Get all uncheckedBoxes
@@ -260,16 +270,16 @@ function formatData(data) {
     for (let i in unitTypes) {
       const type = unitTypes[i];
       rObj = {
-        x: width / 2,
-        y: height / 2,
+        x: russiaOrigin.x,
+        y: russiaOrigin.y,
         data: parseInt(obj[`${russia + type}`]),
         r: parseInt(obj[`${russia + type}`]),
         country: russia,
         type: type.slice(1),
       };
       uObj = {
-        x: width / 2,
-        y: height / 2,
+        x: ukraineOrigin.x,
+        y: ukraineOrigin.y,
         data: parseInt(obj[`${ukraine + type}`]),
         r: parseInt(obj[`${ukraine + type}`]),
         country: ukraine,
@@ -305,11 +315,10 @@ function formatData(data) {
   console.log(data);
   // Format data
   totalData = formatData(data);
-  const latestSet = totalData[totalData.length - 1];
+  const latestSet = totalData[dateSlider.value - 1];
 
   // Set slider attributes
   dateSlider.setAttribute("max", totalData.length);
-  dateSlider.value = totalData.length;
   dateSlider.oninput = (event) => {
     const sliderValue = event.target.value - 1;
     selectedDate = totalData[sliderValue].date;
@@ -319,11 +328,11 @@ function formatData(data) {
   };
 
   // Set latest date
-  selectedDate = latestSet.date;
+  selectedDate = totalData[dateSlider.value - 1];
   displayDate(formatDate(new Date(selectedDate)));
   createFilters();
 
   // Set global data points to use
-  dataPoints = latestSet;
+  dataPoints = totalData[dateSlider.value - 1];
   filterData();
 })();
