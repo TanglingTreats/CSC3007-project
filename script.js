@@ -8,7 +8,7 @@ const reader = new FileReader();
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 
-let currFilter = "all";
+let currFilter = ["all"];
 
 const width = 1300;
 const height = 600;
@@ -54,11 +54,21 @@ function checkboxFunction(event) {
 
     for (let i in checked_checkboxes) {
       checked_checkboxes[i].checked = false;
+      const filterArrIndex = currFilter.indexOf(checked_checkboxes[i].value);
+
+      if (filterArrIndex !== -1) {
+        currFilter.splice(filterArrIndex, 1);
+      }
     }
   } else {
     let all_checkbox = checkboxes.find((checkbox) => checkbox.value === "all");
     all_checkbox.checked = false;
+    const all_index = currFilter.indexOf("all");
+    if (all_index !== -1) currFilter.splice(all_index, 1);
   }
+
+  currFilter.push(checkbox.value);
+  console.log(currFilter);
 }
 
 function createFilters() {
