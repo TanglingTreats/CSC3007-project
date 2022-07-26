@@ -9,11 +9,16 @@ const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 
 let currFilter = ["all"];
+let dataPoints = [];
 
 const width = 1300;
 const height = 600;
 
 let svg = d3.select("svg").attr("width", width).attr("height", height);
+
+// Create Tooltip
+const tooltip = d3.select("#tooltip").style("opacity", 0);
+tooltip.style("top", height / 3).style("left", width / 2);
 
 const russia = "Russia";
 const ukraine = "Ukraine";
@@ -26,6 +31,21 @@ const unitTypes = [
   `_Logistics`,
   `_Vehicles`,
 ];
+
+const oneThirdWidth = width / 3;
+
+const countryColorScale = d3
+  .scaleOrdinal()
+  .domain([russia, ukraine])
+  .range(["#FF7E7E", "#656BFF"]);
+
+const countryCluster = d3
+  .scaleOrdinal()
+  .domain([russia, ukraine])
+  .range([oneThirdWidth, oneThirdWidth * 2 + oneThirdWidth / 2]);
+
+const zoomLevel = 0.1;
+const limit = 35;
 
 // Format date in the form of DD MMM YYYY
 function formatDate(date) {
@@ -61,14 +81,31 @@ function checkboxFunction(event) {
       }
     }
   } else {
-    let all_checkbox = checkboxes.find((checkbox) => checkbox.value === "all");
-    all_checkbox.checked = false;
-    const all_index = currFilter.indexOf("all");
-    if (all_index !== -1) currFilter.splice(all_index, 1);
+    console.log(checkbox.value);
+    let allCheckbox = checkboxes.find((checkbox) => checkbox.value === "all");
+
+    // Get all uncheckedBoxes
+    let uncheckedBoxes = checkboxes.find((checkbox) => checkbox.checked);
+
+    allCheckbox.checked = false;
+    const allIndex = currFilter.indexOf("all");
+    if (allIndex !== -1) currFilter.splice(allIndex, 1);
+
+    if (uncheckedBoxes === undefined) {
+      allCheckbox.checked = true;
+
+      if (checkbox.value !== "all") currFilter.push(allCheckbox.value);
+    }
   }
 
-  currFilter.push(checkbox.value);
-  console.log(currFilter);
+  if (checkbox.checked) {
+    currFilter.push(checkbox.value);
+  } else {
+    const uncheckedBoxIndex = currFilter.indexOf(checkbox.value);
+    currFilter.splice(uncheckedBoxIndex, 1);
+  }
+
+  filterData();
 }
 
 function createFilters() {
@@ -92,7 +129,6 @@ function createFilters() {
 
   // Create unit types
   for (let i in unitTypes) {
-    console.log(unitTypes[i].slice(1));
     const type = unitTypes[i].slice(1);
     const checkbox = document.createElement("input");
     checkbox.id = type.toLowerCase();
@@ -111,73 +147,24 @@ function createFilters() {
   }
 }
 
-(async () => {
-  const res = await fetch(target, {
-    method: "get",
-    headers: {
-      "content-type": "text/csv;charset=UTF-8",
-    },
-  });
+function filterData() {
+  const filteredDataPoints = dataPoints.filter(
+    (point) =>
+      currFilter.indexOf("all") > -1 ||
+      (currFilter.indexOf("all") === -1 &&
+        currFilter.indexOf(point.type.toLowerCase()) > -1)
+  );
 
-  // Get CSV string from response
-  const csvString = await res.text();
+  displayData(filteredDataPoints);
+}
 
-  // Get JSON from csv string
-  const data = d3.csvParse(csvString);
-
-  const latestSet = data[data.length - 1];
-
-  console.log(latestSet);
-
-  displayDate(formatDate(new Date(latestSet.Date)));
-  createFilters();
-
-  // Create data point objects to pass into d3
-  const dataPoints = unitTypes.flatMap((type) => {
-    let rObj = {
-      x: width / 2,
-      y: height / 2,
-      data: parseInt(latestSet[`${russia + type}`]),
-      r: parseInt(latestSet[`${russia + type}`]),
-      country: russia,
-      type: type.slice(1),
-    };
-    let uObj = {
-      x: width / 2,
-      y: height / 2,
-      data: parseInt(latestSet[`${ukraine + type}`]),
-      r: parseInt(latestSet[`${ukraine + type}`]),
-      country: ukraine,
-      type: type.slice(1),
-    };
-
-    return [rObj, uObj];
-  });
-
-  const oneThirdWidth = width / 3;
-
-  const countryColorScale = d3
-    .scaleOrdinal()
-    .domain([russia, ukraine])
-    .range(["#FF7E7E", "#656BFF"]);
-
-  const countryCluster = d3
-    .scaleOrdinal()
-    .domain([russia, ukraine])
-    .range([oneThirdWidth, oneThirdWidth * 2 + oneThirdWidth / 2]);
-
-  const zoomLevel = 0.1;
-  const limit = 35;
-
-  // Create Tooltip
-  let tooltip = d3.select("#tooltip").style("opacity", 0);
-  tooltip.style("top", height / 3).style("left", width / 2);
-
+function displayData(filteredDataPoints) {
+  svg.selectAll("g").remove();
   let node = svg
     .append("g")
     .attr("id", "nodes")
     .selectAll("g")
-    .data(dataPoints)
+    .data(filteredDataPoints)
     .enter()
     .append("g");
 
@@ -187,7 +174,6 @@ function createFilters() {
     .style("fill", (d) => countryColorScale(d.country))
     .on("mouseover", (event, d) => {
       d3.select(event.target).attr("class", "circle-border");
-      console.log(d);
       d3.selectAll("circle").style("opacity", (c) => {
         if (c.type !== d.type) return 0.5;
       });
@@ -225,7 +211,7 @@ function createFilters() {
 
   let simulation = d3
     .forceSimulation()
-    .nodes(dataPoints)
+    .nodes(filteredDataPoints)
     .force(
       "x",
       d3
@@ -252,4 +238,51 @@ function createFilters() {
       //circle.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
       node.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
     });
+}
+
+(async () => {
+  const res = await fetch(target, {
+    method: "get",
+    headers: {
+      "content-type": "text/csv;charset=UTF-8",
+    },
+  });
+
+  // Get CSV string from response
+  const csvString = await res.text();
+
+  // Get JSON from csv string
+  const data = d3.csvParse(csvString);
+
+  const latestSet = data[data.length - 1];
+
+  console.log(latestSet);
+
+  displayDate(formatDate(new Date(latestSet.Date)));
+  createFilters();
+
+  // Create data point objects to pass into d3
+  const dataP = unitTypes.flatMap((type) => {
+    let rObj = {
+      x: width / 2,
+      y: height / 2,
+      data: parseInt(latestSet[`${russia + type}`]),
+      r: parseInt(latestSet[`${russia + type}`]),
+      country: russia,
+      type: type.slice(1),
+    };
+    let uObj = {
+      x: width / 2,
+      y: height / 2,
+      data: parseInt(latestSet[`${ukraine + type}`]),
+      r: parseInt(latestSet[`${ukraine + type}`]),
+      country: ukraine,
+      type: type.slice(1),
+    };
+
+    return [rObj, uObj];
+  });
+
+  dataPoints = dataP;
+  filterData();
 })();
