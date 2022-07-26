@@ -9,6 +9,7 @@ const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 
 let currFilter = ["all"];
+let totalData = [];
 let dataPoints = [];
 
 const width = 1300;
@@ -31,6 +32,8 @@ const unitTypes = [
   `_Logistics`,
   `_Vehicles`,
 ];
+
+const formatType = [...unitTypes, `_Total`];
 
 const oneThirdWidth = width / 3;
 
@@ -148,7 +151,8 @@ function createFilters() {
 }
 
 function filterData() {
-  const filteredDataPoints = dataPoints.filter(
+  const data = dataPoints.data;
+  const filteredDataPoints = data.filter(
     (point) =>
       currFilter.indexOf("all") > -1 ||
       (currFilter.indexOf("all") === -1 &&
@@ -240,6 +244,48 @@ function displayData(filteredDataPoints) {
     });
 }
 
+function formatData(data) {
+  // Form data of
+  // {
+  //    date: ""
+  //    data: []
+  // }
+  const formattedData = data.flatMap((obj) => {
+    let rObj = {};
+    let uObj = {};
+    const dObj = {};
+    const dArray = [];
+    for (let i in unitTypes) {
+      const type = unitTypes[i];
+      rObj = {
+        x: width / 2,
+        y: height / 2,
+        data: parseInt(obj[`${russia + type}`]),
+        r: parseInt(obj[`${russia + type}`]),
+        country: russia,
+        type: type.slice(1),
+      };
+      uObj = {
+        x: width / 2,
+        y: height / 2,
+        data: parseInt(obj[`${ukraine + type}`]),
+        r: parseInt(obj[`${ukraine + type}`]),
+        country: ukraine,
+        type: type.slice(1),
+      };
+
+      dArray.push(rObj, uObj);
+    }
+
+    dObj.date = obj["Date"];
+    dObj.data = dArray;
+
+    return dObj;
+  });
+
+  return formattedData;
+}
+
 (async () => {
   const res = await fetch(target, {
     method: "get",
@@ -254,35 +300,13 @@ function displayData(filteredDataPoints) {
   // Get JSON from csv string
   const data = d3.csvParse(csvString);
 
-  const latestSet = data[data.length - 1];
+  console.log(data);
+  totalData = formatData(data);
+  const latestSet = totalData[totalData.length - 1];
 
-  console.log(latestSet);
-
-  displayDate(formatDate(new Date(latestSet.Date)));
+  displayDate(formatDate(new Date(latestSet.date)));
   createFilters();
 
-  // Create data point objects to pass into d3
-  const dataP = unitTypes.flatMap((type) => {
-    let rObj = {
-      x: width / 2,
-      y: height / 2,
-      data: parseInt(latestSet[`${russia + type}`]),
-      r: parseInt(latestSet[`${russia + type}`]),
-      country: russia,
-      type: type.slice(1),
-    };
-    let uObj = {
-      x: width / 2,
-      y: height / 2,
-      data: parseInt(latestSet[`${ukraine + type}`]),
-      r: parseInt(latestSet[`${ukraine + type}`]),
-      country: ukraine,
-      type: type.slice(1),
-    };
-
-    return [rObj, uObj];
-  });
-
-  dataPoints = dataP;
+  dataPoints = latestSet;
   filterData();
 })();
