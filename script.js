@@ -68,6 +68,7 @@ const limit = 35;
 // d3 elements
 let node;
 let simulation;
+let nodeG;
 
 // Format date in the form of DD MMM YYYY
 function formatDate(date) {
@@ -184,15 +185,41 @@ function filterData() {
 
 function initChart(data) {
   svg.append("g").attr("id", "nodes");
+  simulation = d3
+    .forceSimulation(data)
+    .force(
+      "x",
+      d3
+        .forceX()
+        .strength(0.08)
+        .x((d) => countryCluster(d.country))
+    )
+    .force(
+      "y",
+      d3
+        .forceY()
+        .strength(0.08)
+        .y(height / 2)
+    )
+    .force("charge", d3.forceManyBody().strength(20))
+    .force(
+      "collide",
+      d3
+        .forceCollide()
+        .strength(1)
+        .radius((d) => d.r * zoomLevel)
+    )
+    .alphaTarget(0.3)
+    .on("tick", ticking);
 }
 
 function displayData(filteredDataPoints) {
-  //svg.selectAll("g").remove();
   node = svg.selectAll("g").data(filteredDataPoints, (d) => d);
 
-  let nodeG = node.join(
+  nodeG = node.join(
     (enter) => {
       let g = enter.append("g");
+
       g.append("circle")
         .attr("r", (d) => d.r * zoomLevel)
         .style("fill", (d) => countryColorScale(d.country))
@@ -216,6 +243,7 @@ function displayData(filteredDataPoints) {
           });
           tooltip.style("opacity", 0);
         });
+
       g.append("text")
         .attr("class", "type-label")
         .text((d) => {
@@ -223,6 +251,7 @@ function displayData(filteredDataPoints) {
         })
         .attr("dy", "-0.5em")
         .attr("text-anchor", "middle");
+
       g.append("text")
         .attr("class", "type-value")
         .text((d) => {
@@ -242,34 +271,18 @@ function displayData(filteredDataPoints) {
     }
   );
 
-  simulation = d3
-    .forceSimulation()
-    .nodes(filteredDataPoints)
-    .force(
-      "x",
-      d3
-        .forceX()
-        .strength(0.1)
-        .x((d) => countryCluster(d.country))
-    )
-    .force(
-      "y",
-      d3
-        .forceY()
-        .strength(0.1)
-        .y(height / 2)
-    )
-    .force("charge", d3.forceManyBody().strength(10))
-    .force(
-      "collide",
-      d3
-        .forceCollide()
-        .strength(1)
-        .radius((d) => d.r * zoomLevel)
-    )
-    .on("tick", (d) => {
-      nodeG.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
-    });
+  simulation.nodes(filteredDataPoints).force(
+    "collide",
+    d3
+      .forceCollide()
+      .strength(1)
+      .radius((d) => d.r * zoomLevel)
+      .iterations(1)
+  );
+}
+
+function ticking() {
+  nodeG.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
 }
 
 function formatData(data) {
