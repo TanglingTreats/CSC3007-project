@@ -15,6 +15,8 @@ let selectedDate = "";
 let totalData = [];
 let dataPoints = [];
 
+let isInit = true;
+
 const width = 1300;
 const height = 600;
 
@@ -62,6 +64,9 @@ const countryCluster = d3
 
 const zoomLevel = 0.1;
 const limit = 35;
+
+// d3 elements
+let node;
 
 // Format date in the form of DD MMM YYYY
 function formatDate(date) {
@@ -171,59 +176,71 @@ function filterData() {
         currFilter.indexOf(point.type.toLowerCase()) > -1)
   );
 
+  if (isInit) initChart(filteredDataPoints);
+  isInit = false;
   displayData(filteredDataPoints);
 }
 
+function initChart(data) {
+  svg.append("g").attr("id", "nodes");
+}
+
 function displayData(filteredDataPoints) {
-  svg.selectAll("g").remove();
-  let node = svg
-    .append("g")
-    .attr("id", "nodes")
-    .selectAll("g")
-    .data(filteredDataPoints)
-    .enter()
-    .append("g");
+  //svg.selectAll("g").remove();
+  console.log(filteredDataPoints);
+  node = svg.selectAll("g").data(filteredDataPoints, (d) => d);
 
-  let circle = node
-    .append("circle")
-    .attr("r", (d) => d.r * zoomLevel)
-    .style("fill", (d) => countryColorScale(d.country))
-    .on("mouseover", (event, d) => {
-      d3.select(event.target).attr("class", "circle-border");
-      d3.selectAll("circle").style("opacity", (c) => {
-        if (c.type !== d.type) return 0.5;
-      });
-      d3.selectAll("text").style("opacity", (c) => {
-        if (c.type !== d.type) return 0.5;
-      });
-      tooltip.html(`${d.type}`).style("opacity", 1);
-    })
-    .on("mouseout", (event, d) => {
-      d3.select(event.target).attr("class", "circle-border");
-      d3.selectAll("circle").style("opacity", (c) => {
-        if (c.type !== d.type) return 1;
-      });
-      d3.selectAll("text").style("opacity", (c) => {
-        if (c.type !== d.type) return 1;
-      });
-      tooltip.style("opacity", 0);
-    });
+  let nodeG = node.join(
+    (enter) => {
+      let g = enter.append("g");
+      g.append("circle")
+        .attr("r", (d) => d.r * zoomLevel)
+        .style("fill", (d) => countryColorScale(d.country))
+        .on("mouseover", (event, d) => {
+          d3.select(event.target).attr("class", "circle-border");
+          d3.selectAll("circle").style("opacity", (c) => {
+            if (c.type !== d.type) return 0.5;
+          });
+          d3.selectAll("text").style("opacity", (c) => {
+            if (c.type !== d.type) return 0.5;
+          });
+          tooltip.html(`${d.type}`).style("opacity", 1);
+        })
+        .on("mouseout", (event, d) => {
+          d3.select(event.target).attr("class", "circle-border");
+          d3.selectAll("circle").style("opacity", (c) => {
+            if (c.type !== d.type) return 1;
+          });
+          d3.selectAll("text").style("opacity", (c) => {
+            if (c.type !== d.type) return 1;
+          });
+          tooltip.style("opacity", 0);
+        });
+      g.append("text")
+        .attr("class", "type-label")
+        .text((d) => {
+          if (d.r * zoomLevel >= limit) return `${d.type}`;
+        })
+        .attr("dy", "-0.5em")
+        .attr("text-anchor", "middle");
+      g.append("text")
+        .attr("class", "type-value")
+        .text((d) => {
+          if (d.r * zoomLevel >= limit) return `${d.data}`;
+        })
+        .attr("dy", "0.5em")
+        .attr("text-anchor", "middle");
 
-  let typeLabel = node
-    .append("text")
-    .text((d) => {
-      if (d.r * zoomLevel >= limit) return `${d.type}`;
-    })
-    .attr("dy", "-0.5em")
-    .attr("text-anchor", "middle");
-
-  let dataLabel = node
-    .append("text")
-    .text((d) => {
-      if (d.r * zoomLevel >= limit) return `${d.data}`;
-    })
-    .attr("dy", "0.5em")
-    .attr("text-anchor", "middle");
+      return g;
+    },
+    (update) => {
+      update.selectAll("circle").attr("r", (d) => d.r * zoomLevel);
+      update.selectAll("type-value").text((d) => {
+        if (d.r * zoomLevel >= limit) return `${d.data}`;
+      });
+      return update;
+    }
+  );
 
   let simulation = d3
     .forceSimulation()
@@ -252,7 +269,7 @@ function displayData(filteredDataPoints) {
     )
     .on("tick", (d) => {
       //circle.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-      node.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
+      nodeG.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
     });
 }
 
@@ -328,7 +345,7 @@ function formatData(data) {
   };
 
   // Set latest date
-  selectedDate = totalData[dateSlider.value - 1];
+  selectedDate = totalData[dateSlider.value - 1].date;
   displayDate(formatDate(new Date(selectedDate)));
   createFilters();
 
