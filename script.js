@@ -43,6 +43,24 @@ function displayDate(date) {
   dateSpan.innerText = date;
 }
 
+function checkboxFunction(event) {
+  const checkboxes = Array.from(document.getElementsByClassName("checkbox"));
+  const checkbox = event.target;
+
+  if (checkbox.checked && checkbox.value === "all") {
+    let checked_checkboxes = checkboxes.filter(
+      (checkbox) => checkbox.value !== "all" && checkbox.checked
+    );
+
+    for (let i in checked_checkboxes) {
+      checked_checkboxes[i].checked = false;
+    }
+  } else {
+    let all_checkbox = checkboxes.find((checkbox) => checkbox.value === "all");
+    all_checkbox.checked = false;
+  }
+}
+
 function createFilters() {
   // Create all
   const type = "All";
@@ -53,13 +71,10 @@ function createFilters() {
   checkbox.value = type.toLowerCase();
   checkbox.name = type.toLowerCase();
   checkbox.checked = true;
-  checkbox.onclick = () => {
-    if (checkbox.checked) {
-      console.log(type);
-    }
-  };
+  checkbox.onclick = checkboxFunction;
+
   const checkboxLabel = document.createElement("label");
-  checkboxLabel.for = type.toLowerCase();
+  checkboxLabel.setAttribute("for", type.toLowerCase());
   checkboxLabel.innerHTML = type;
 
   filters.appendChild(checkbox);
@@ -75,14 +90,10 @@ function createFilters() {
     checkbox.type = "checkbox";
     checkbox.value = type.toLowerCase();
     checkbox.name = type.toLowerCase();
-    checkbox.onclick = () => {
-      if (checkbox.checked) {
-        console.log(type);
-      }
-    };
+    checkbox.onclick = checkboxFunction;
 
     const checkboxLabel = document.createElement("label");
-    checkboxLabel.for = type.toLowerCase();
+    checkboxLabel.setAttribute("for", type.toLowerCase());
     checkboxLabel.innerHTML = type;
 
     filters.appendChild(checkbox);
