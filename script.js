@@ -67,6 +67,7 @@ const limit = 35;
 
 // d3 elements
 let node;
+let simulation;
 
 // Format date in the form of DD MMM YYYY
 function formatDate(date) {
@@ -187,7 +188,6 @@ function initChart(data) {
 
 function displayData(filteredDataPoints) {
   //svg.selectAll("g").remove();
-  console.log(filteredDataPoints);
   node = svg.selectAll("g").data(filteredDataPoints, (d) => d);
 
   let nodeG = node.join(
@@ -242,7 +242,7 @@ function displayData(filteredDataPoints) {
     }
   );
 
-  let simulation = d3
+  simulation = d3
     .forceSimulation()
     .nodes(filteredDataPoints)
     .force(
@@ -265,10 +265,9 @@ function displayData(filteredDataPoints) {
       d3
         .forceCollide()
         .strength(1)
-        .radius((d) => d.r * 0.1)
+        .radius((d) => d.r * zoomLevel)
     )
     .on("tick", (d) => {
-      //circle.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
       nodeG.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
     });
 }
