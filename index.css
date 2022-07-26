@@ -38,7 +38,7 @@ body {
     margin: 0 5px;
 }
 
-.navbar a {
+a {
     color: var(--font-color);
     text-decoration: none;
 }
