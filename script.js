@@ -8,6 +8,8 @@ const reader = new FileReader();
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 
+let currFilter = "all";
+
 const width = 1300;
 const height = 600;
 
