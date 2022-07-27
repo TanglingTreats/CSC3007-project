@@ -8,15 +8,35 @@ const reader = new FileReader();
 const stories = [
   {
     date: "2022-02-24",
-    text: "This is the start of the story",
+    text: "Nothing much is happening in the beginning. At this point, Russian troops are advancing towards Kyiv",
   },
   {
-    date: "2022-03-13",
-    text: "The story is progressing so well",
+    date: "2022-03-01",
+    text: "City of Kherson in Southern Ukraine, was under attack by Russian forces",
   },
   {
-    date: "2022-05-3",
-    text: "Wow holly molly",
+    date: "2022-03-04",
+    text: "Russia fired more than 500 missiles at Ukraine",
+  },
+  {
+    date: "2022-03-07",
+    text: "Ukrainian forces had retaken Mykolaiv International Airport and Chuhuiv in a counter-attack ovenight",
+  },
+  {
+    date: "2022-03-12",
+    text: "Heavy fighting occurred North of Kyiv",
+  },
+  {
+    date: "2022-03-15",
+    text: "Ukrainian Air Force destroy mulitple Russian helicopters",
+  },
+  {
+    date: "2022-03-24",
+    text: "Ukrainian forces hit Russian Navy's Alligator-class landing ship with ballistic missile",
+  },
+  {
+    date: "2022-03-31",
+    text: "Most Russian troops had withdrawn from Chernobyl power plant. Ukrainian forces continued to counterattack in some area",
   },
 ];
 
