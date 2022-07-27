@@ -38,6 +38,38 @@ const stories = [
     date: "2022-03-31",
     text: "Most Russian troops had withdrawn from Chernobyl power plant. Ukrainian forces continued to counterattack in some area",
   },
+  {
+    date: "2022-04-01",
+    text: "Izium under Russian control",
+  },
+  {
+    date: "2022-04-02",
+    text: "Russian missiles hit the cities of Poltava and Kremenchuk in central Ukraine",
+  },
+  {
+    date: "2022-04-10",
+    text: "Russian Ka-52 attack helicopters destroyed a convoy of Ukraine armoured vehicles and anti-aircraft warfare systems",
+  },
+  {
+    date: "2022-04-16",
+    text: "Russia destroyed production buildings of an armoured vehicle plant in Kyiv and military repair facility in Mykolaiv",
+  },
+  {
+    date: "2022-04-20",
+    text: "Russia forces had hit 1,053 Ukrainian military facilities overnight and destroyed 106 firing positions",
+  },
+  {
+    date: "2022-05-11",
+    text: "Russia reportedly lost two or more Russian army battalions including over 70 armoured vehicles attempting to cross the Siverskyi Donets River",
+  },
+  {
+    date: "2022-05-15",
+    text: "Ukraine launched a counter-attack against Russian forces near Izium",
+  },
+  {
+    date: "2022-05-29",
+    text: 'Institute for the Study of War said that Russian forces had suffered "fearful casualties" at the Battle of Sievierodonetsk (City of Ukraine) which weakens other front lines and risk exhausting remaining troops',
+  },
 ];
 
 const dateSpan = document.getElementById("current-date");
