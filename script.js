@@ -20,6 +20,12 @@ let isInit = true;
 
 const limit = 35;
 
+let windowDimensions = {
+  width: document.body.clientWidth,
+  height: document.body.clientHeight,
+};
+window.onresize = updateWindowSize;
+
 const width = 1300;
 const height = 600;
 
@@ -39,7 +45,7 @@ let svg = d3.select("svg").attr("width", width).attr("height", height);
 
 // Create Tooltip
 const tooltip = d3.select("#tooltip").style("opacity", 0);
-tooltip.style("top", height / 3).style("left", width / 2);
+updateWindowSize();
 
 const russia = "Russia";
 const ukraine = "Ukraine";
@@ -86,6 +92,27 @@ function formatDate(date) {
 // Set date to element
 function displayDate(date) {
   dateSpan.innerText = date;
+}
+
+function updateWindowSize() {
+  windowDimensions.width = document.body.clientWidth;
+  windowDimensions.height = document.body.clientHeight;
+
+  const tooltipElement = document.getElementById("tooltip");
+  const offset = {
+    width: tooltipElement.clientWidth / 2,
+    height: tooltipElement.clientHeight / 2,
+  };
+
+  if (windowDimensions.width > 1900) {
+    tooltip
+      .style("top", (windowDimensions.height - offset.height) / 5)
+      .style("left", (windowDimensions.width - offset.width) / 2);
+  } else {
+    tooltip
+      .style("top", (windowDimensions.height - offset.height) / 4)
+      .style("left", (windowDimensions.width - offset.width) / 2);
+  }
 }
 
 function checkboxFunction(event) {
@@ -231,6 +258,7 @@ function displayData(filteredDataPoints) {
             if (c.type !== d.type) return 0.5;
           });
           tooltip.html(`${d.type} ${d.data}`).style("opacity", 1);
+          updateWindowSize();
         })
         .on("mouseout", (event, d) => {
           d3.select(event.target).attr("class", "circle-border");
@@ -281,6 +309,7 @@ function displayData(filteredDataPoints) {
             if (c.type !== d.type) return 0.5;
           });
           tooltip.html(`${d.type} ${d.data}`).style("opacity", 1);
+          updateWindowSize();
         })
         .on("mouseout", (event, d) => {
           d3.select(event.target).attr("class", "circle-border");
@@ -329,7 +358,9 @@ function formatData(data) {
   //    data: []
   // }
 
+  // store all values
   const minMaxArray = [];
+
   const formattedData = data.flatMap((obj) => {
     let rObj = {};
     let uObj = {};
@@ -358,6 +389,8 @@ function formatData(data) {
     }
 
     dObj.date = obj["Date"];
+    dObj["Russia_Total"] = obj["Russia_Total"];
+    dObj["Ukraine_Total"] = obj["Ukraine_Total"];
     dObj.data = dArray;
 
     const valArray = dArray.map((val) => val.data);
@@ -365,6 +398,7 @@ function formatData(data) {
 
     return dObj;
   });
+
   const min = Math.min(...minMaxArray);
   const max = Math.max(...minMaxArray);
 
