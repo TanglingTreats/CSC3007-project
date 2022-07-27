@@ -14,6 +14,7 @@ let currFilter = ["all"];
 let selectedDate = "";
 let totalData = [];
 let dataPoints = [];
+let filteredData = [];
 
 let isInit = true;
 
@@ -184,7 +185,7 @@ function filterData() {
 }
 
 function initChart(data) {
-  svg.append("g").attr("id", "nodes");
+  //svg.select("g").append("g").attr("id", "nodes");
   simulation = d3
     .forceSimulation(data)
     .force(
@@ -214,15 +215,12 @@ function initChart(data) {
 }
 
 function displayData(filteredDataPoints) {
-  node = svg.selectAll("g").data(filteredDataPoints, (d) => d);
+  node = svg.selectAll("g").data(filteredDataPoints, (d) => d.id);
 
   nodeG = node.join(
     (enter) => {
-      let g = enter.append("g");
-
-      g.append("circle")
-        .attr("r", (d) => d.r * zoomLevel)
-        .style("fill", (d) => countryColorScale(d.country))
+      let g = enter
+        .append("g")
         .on("mouseover", (event, d) => {
           d3.select(event.target).attr("class", "circle-border");
           d3.selectAll("circle").style("opacity", (c) => {
@@ -231,7 +229,7 @@ function displayData(filteredDataPoints) {
           d3.selectAll("text").style("opacity", (c) => {
             if (c.type !== d.type) return 0.5;
           });
-          tooltip.html(`${d.type}`).style("opacity", 1);
+          tooltip.html(`${d.type} ${d.data}`).style("opacity", 1);
         })
         .on("mouseout", (event, d) => {
           d3.select(event.target).attr("class", "circle-border");
@@ -243,6 +241,11 @@ function displayData(filteredDataPoints) {
           });
           tooltip.style("opacity", 0);
         });
+
+      g.append("circle")
+        .attr("id", (d) => d.id)
+        .attr("r", (d) => d.r * zoomLevel)
+        .style("fill", (d) => countryColorScale(d.country));
 
       g.append("text")
         .attr("class", "type-label")
@@ -263,8 +266,33 @@ function displayData(filteredDataPoints) {
       return g;
     },
     (update) => {
-      update.selectAll("circle").attr("r", (d) => d.r * zoomLevel);
-      update.selectAll("type-value").text((d) => {
+      update
+        .select("g")
+        .on("mouseover", (event, d) => {
+          d3.select(event.target).attr("class", "circle-border");
+          d3.selectAll("circle").style("opacity", (c) => {
+            if (c.type !== d.type) return 0.5;
+          });
+          d3.selectAll("text").style("opacity", (c) => {
+            if (c.type !== d.type) return 0.5;
+          });
+          tooltip.html(`${d.type}`).style("opacity", 1);
+        })
+        .on("mouseout", (event, d) => {
+          d3.select(event.target).attr("class", "circle-border");
+          d3.selectAll("circle").style("opacity", (c) => {
+            if (c.type !== d.type) return 1;
+          });
+          d3.selectAll("text").style("opacity", (c) => {
+            if (c.type !== d.type) return 1;
+          });
+          tooltip.style("opacity", 0);
+        });
+      update.select("circle").attr("r", (d) => d.r * zoomLevel);
+      update.select(".type-label").text((d) => {
+        if (d.r * zoomLevel >= limit) return `${d.type}`;
+      });
+      update.select(".type-value").text((d) => {
         if (d.r * zoomLevel >= limit) return `${d.data}`;
       });
       return update;
@@ -299,6 +327,7 @@ function formatData(data) {
     for (let i in unitTypes) {
       const type = unitTypes[i];
       rObj = {
+        id: `${russia + type}`,
         x: russiaOrigin.x,
         y: russiaOrigin.y,
         data: parseInt(obj[`${russia + type}`]),
@@ -307,6 +336,7 @@ function formatData(data) {
         type: type.slice(1),
       };
       uObj = {
+        id: `${ukraine + type}`,
         x: ukraineOrigin.x,
         y: ukraineOrigin.y,
         data: parseInt(obj[`${ukraine + type}`]),
