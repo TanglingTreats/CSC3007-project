@@ -38,6 +38,38 @@ const stories = [
     date: "2022-03-31",
     text: "Most Russian troops had withdrawn from Chernobyl power plant. Ukrainian forces continued to counterattack in some area",
   },
+  {
+    date: "2022-04-01",
+    text: "Izium under Russian control",
+  },
+  {
+    date: "2022-04-02",
+    text: "Russian missiles hit the cities of Poltava and Kremenchuk in central Ukraine",
+  },
+  {
+    date: "2022-04-10",
+    text: "Russian Ka-52 attack helicopters destroyed a convoy of Ukraine armoured vehicles and anti-aircraft warfare systems",
+  },
+  {
+    date: "2022-04-16",
+    text: "Russia destroyed production buildings of an armoured vehicle plant in Kyiv and military repair facility in Mykolaiv",
+  },
+  {
+    date: "2022-04-20",
+    text: "Russia forces had hit 1,053 Ukrainian military facilities overnight and destroyed 106 firing positions",
+  },
+  {
+    date: "2022-05-11",
+    text: "Russia reportedly lost two or more Russian army battalions including over 70 armoured vehicles attempting to cross the Siverskyi Donets River",
+  },
+  {
+    date: "2022-05-15",
+    text: "Ukraine launched a counter-attack against Russian forces near Izium",
+  },
+  {
+    date: "2022-05-29",
+    text: 'Institute for the Study of War said that Russian forces had suffered "fearful casualties" at the Battle of Sievierodonetsk (City of Ukraine) which weakens other front lines and risk exhausting remaining troops',
+  },
 ];
 
 const dateSpan = document.getElementById("current-date");
@@ -55,7 +87,11 @@ let filteredData = [];
 
 let isInit = true;
 
-const limit = 35;
+const labelLimit = 35;
+const valLimit = 12;
+
+let multiplier = 4;
+let scoreMulti = 2;
 
 let windowDimensions = {
   width: document.body.clientWidth,
@@ -273,7 +309,7 @@ function initChart(data) {
       d3
         .forceCollide()
         .strength(1)
-        .radius((d) => zoomScale(d.data))
+        .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
     )
     .alphaTarget(0.3)
     .on("tick", ticking);
@@ -312,14 +348,19 @@ function displayData(filteredDataPoints) {
         .attr("id", (d) => d.id)
         .attr("r", (d) => {
           const size = zoomScale(d.data);
-          return size;
+          //return size;
+          return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
         })
         .style("fill", (d) => countryColorScale(d.country));
 
       g.append("text")
         .attr("class", "type-label")
         .text((d) => {
-          if (zoomScale(d.data) >= limit) return `${d.type}`;
+          if (
+            Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+            labelLimit
+          )
+            return `${d.type}`;
         })
         .attr("dy", "-0.5em")
         .attr("text-anchor", "middle");
@@ -327,7 +368,12 @@ function displayData(filteredDataPoints) {
       g.append("text")
         .attr("class", "type-value")
         .text((d) => {
-          return `${d.data}`;
+          if (
+            Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+            valLimit
+          ) {
+            return d.data;
+          }
         })
         .attr("dy", "0.5em")
         .attr("text-anchor", "middle");
@@ -360,15 +406,24 @@ function displayData(filteredDataPoints) {
         });
       update.select("circle").attr("r", (d) => {
         const size = zoomScale(d.data);
-        return size;
+        //return size;
+        return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
       });
       update.select(".type-label").text((d) => {
-        if (zoomScale(d.data) >= limit) {
+        if (
+          Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+          labelLimit
+        ) {
           return d.type;
         }
       });
       update.select(".type-value").text((d) => {
-        return d.data;
+        if (
+          Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+          valLimit
+        ) {
+          return d.data;
+        }
       });
       return update;
     }
@@ -379,7 +434,7 @@ function displayData(filteredDataPoints) {
     d3
       .forceCollide()
       .strength(1)
-      .radius((d) => zoomScale(d.data))
+      .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
       .iterations(1)
   );
 }
