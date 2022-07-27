@@ -70,6 +70,34 @@ const stories = [
     date: "2022-05-29",
     text: 'Institute for the Study of War said that Russian forces had suffered "fearful casualties" at the Battle of Sievierodonetsk (City of Ukraine) which weakens other front lines and risk exhausting remaining troops',
   },
+  {
+    date: "2022-06-03",
+    text: "Ukrainian troops engaged in a block-by-block fight for the city of Sievierodonetsk and managed ot push back Russian forces by 20%",
+  },
+  {
+    date: "2022-06-11",
+    text: "Ukraine had launched airstrikes in the southern region of Russian-occupied Kherson",
+  },
+  {
+    date: "2022-06-19",
+    text: "3 Russian missiles destroyed a fuel storage depot in the eastern Ukrainian town",
+  },
+  {
+    date: "2022-06-22",
+    text: "Two drones flying from the direction of Ukraine hit a major Russian oil refinery near the border on Novoshakhtinsk",
+  },
+  {
+    date: "2022-06-25",
+    text: "Ukraine started deploying the MIARS (High Mobility Artillery Rocket System) and the strike killed over 40 soldiers. It occurred on a Russian military base near Izyum (city of Ukraine)",
+  },
+  {
+    date: "2022-06-28",
+    text: "Russia launched unsuccessful operations in Northwest Kharkiv oblast, to prevent Ukrainian forces from reaching the Russia-Ukraine border, and to defend its position near Isyum",
+  },
+  {
+    date: "2022-07-02",
+    text: "Russia claims to have destroyed five Ukrainian command posts in the Donbas and Mykolaiv regions",
+  },
 ];
 
 const dateSpan = document.getElementById("current-date");
