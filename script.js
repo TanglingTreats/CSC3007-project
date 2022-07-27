@@ -55,7 +55,11 @@ let filteredData = [];
 
 let isInit = true;
 
-const limit = 35;
+const labelLimit = 35;
+const valLimit = 12;
+
+let multiplier = 4;
+let scoreMulti = 2;
 
 let windowDimensions = {
   width: document.body.clientWidth,
@@ -273,7 +277,7 @@ function initChart(data) {
       d3
         .forceCollide()
         .strength(1)
-        .radius((d) => zoomScale(d.data))
+        .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
     )
     .alphaTarget(0.3)
     .on("tick", ticking);
@@ -312,14 +316,19 @@ function displayData(filteredDataPoints) {
         .attr("id", (d) => d.id)
         .attr("r", (d) => {
           const size = zoomScale(d.data);
-          return size;
+          //return size;
+          return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
         })
         .style("fill", (d) => countryColorScale(d.country));
 
       g.append("text")
         .attr("class", "type-label")
         .text((d) => {
-          if (zoomScale(d.data) >= limit) return `${d.type}`;
+          if (
+            Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+            labelLimit
+          )
+            return `${d.type}`;
         })
         .attr("dy", "-0.5em")
         .attr("text-anchor", "middle");
@@ -327,7 +336,12 @@ function displayData(filteredDataPoints) {
       g.append("text")
         .attr("class", "type-value")
         .text((d) => {
-          return `${d.data}`;
+          if (
+            Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+            valLimit
+          ) {
+            return d.data;
+          }
         })
         .attr("dy", "0.5em")
         .attr("text-anchor", "middle");
@@ -360,15 +374,24 @@ function displayData(filteredDataPoints) {
         });
       update.select("circle").attr("r", (d) => {
         const size = zoomScale(d.data);
-        return size;
+        //return size;
+        return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
       });
       update.select(".type-label").text((d) => {
-        if (zoomScale(d.data) >= limit) {
+        if (
+          Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+          labelLimit
+        ) {
           return d.type;
         }
       });
       update.select(".type-value").text((d) => {
-        return d.data;
+        if (
+          Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
+          valLimit
+        ) {
+          return d.data;
+        }
       });
       return update;
     }
@@ -379,7 +402,7 @@ function displayData(filteredDataPoints) {
     d3
       .forceCollide()
       .strength(1)
-      .radius((d) => zoomScale(d.data))
+      .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
       .iterations(1)
   );
 }
