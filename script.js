@@ -5,9 +5,26 @@ const googTarget =
   "https://docs.google.com/spreadsheets/d/1bngHbR0YPS7XH1oSA1VxoL4R34z60SJcR3NxguZM9GI/edit#gid=0";
 const reader = new FileReader();
 
+const stories = [
+  {
+    date: "2022-02-24",
+    text: "This is the start of the story",
+  },
+  {
+    date: "2022-03-13",
+    text: "The story is progressing so well",
+  },
+  {
+    date: "2022-05-3",
+    text: "Wow holly molly",
+  },
+];
+
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 const dateSlider = document.getElementById("date-slider");
+const storyboard = document.getElementById("storyboard");
+
 dateSlider.value = 50;
 
 let currFilter = ["all"];
@@ -421,12 +438,34 @@ function formatData(data) {
 
   // Format data
   const [totalData, min, max] = formatData(data);
+  console.log(totalData);
 
   // Set slider attributes
   dateSlider.setAttribute("max", totalData.length);
   dateSlider.oninput = (event) => {
     const sliderValue = event.target.value - 1;
+
     selectedDate = totalData[sliderValue].date;
+
+    const selectedDateObj = new Date(selectedDate);
+    const currStory = stories.find((story, index) => {
+      if (index === stories.length - 1) {
+        return story;
+      }
+      const storyDate = new Date(story.date);
+      const nextDate = new Date(stories[index + 1].date);
+
+      if (selectedDateObj >= storyDate && selectedDateObj < nextDate) {
+        return story;
+      }
+    });
+
+    // Set storyboard
+    const p = document.createElement("p");
+    p.innerHTML = currStory.text;
+    storyboard.innerHTML = "";
+    storyboard.append(p);
+
     displayDate(formatDate(new Date(selectedDate)));
     dataPoints = totalData[sliderValue];
     filterData();
@@ -434,8 +473,26 @@ function formatData(data) {
 
   zoomScale = d3.scaleLinear().domain([min, max]).range([11, 250]);
 
-  // Set latest date
+  // Set selected date
   selectedDate = totalData[dateSlider.value - 1].date;
+  const selectedDateObj = new Date(selectedDate);
+  const currStory = stories.find((story, index) => {
+    if (index === stories.length - 1) {
+      return story;
+    }
+    const storyDate = new Date(story.date);
+    const nextDate = new Date(stories[index + 1].date);
+
+    if (selectedDateObj >= storyDate && selectedDateObj < nextDate) {
+      return story;
+    }
+  });
+
+  // Set storyboard
+  const p = document.createElement("p");
+  p.innerHTML = currStory.text;
+  storyboard.innerHTML = "";
+  storyboard.append(p);
   displayDate(formatDate(new Date(selectedDate)));
   createFilters();
 
