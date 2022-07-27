@@ -18,6 +18,8 @@ let filteredData = [];
 
 let isInit = true;
 
+const limit = 35;
+
 const width = 1300;
 const height = 600;
 
@@ -63,8 +65,7 @@ const countryCluster = d3
   .domain([russia, ukraine])
   .range([russiaOrigin.x, ukraineOrigin.x]);
 
-const zoomLevel = 0.1;
-const limit = 35;
+let zoomScale;
 
 // d3 elements
 let node;
@@ -208,7 +209,7 @@ function initChart(data) {
       d3
         .forceCollide()
         .strength(1)
-        .radius((d) => d.r * zoomLevel)
+        .radius((d) => zoomScale(d.data))
     )
     .alphaTarget(0.3)
     .on("tick", ticking);
@@ -244,13 +245,16 @@ function displayData(filteredDataPoints) {
 
       g.append("circle")
         .attr("id", (d) => d.id)
-        .attr("r", (d) => d.r * zoomLevel)
+        .attr("r", (d) => {
+          const size = zoomScale(d.data);
+          return size;
+        })
         .style("fill", (d) => countryColorScale(d.country));
 
       g.append("text")
         .attr("class", "type-label")
         .text((d) => {
-          if (d.r * zoomLevel >= limit) return `${d.type}`;
+          if (zoomScale(d.data) >= limit) return `${d.type}`;
         })
         .attr("dy", "-0.5em")
         .attr("text-anchor", "middle");
@@ -258,7 +262,7 @@ function displayData(filteredDataPoints) {
       g.append("text")
         .attr("class", "type-value")
         .text((d) => {
-          if (d.r * zoomLevel >= limit) return `${d.data}`;
+          return `${d.data}`;
         })
         .attr("dy", "0.5em")
         .attr("text-anchor", "middle");
@@ -288,12 +292,15 @@ function displayData(filteredDataPoints) {
           });
           tooltip.style("opacity", 0);
         });
-      update.select("circle").attr("r", (d) => d.r * zoomLevel);
+      update.select("circle").attr("r", (d) => {
+        const size = zoomScale(d.data);
+        return size;
+      });
       update.select(".type-label").text((d) => {
-        if (d.r * zoomLevel >= limit) return `${d.type}`;
+        if (zoomScale(d.data) >= limit) return `${d.type}`;
       });
       update.select(".type-value").text((d) => {
-        if (d.r * zoomLevel >= limit) return `${d.data}`;
+        return `${d.data}`;
       });
       return update;
     }
@@ -304,7 +311,7 @@ function displayData(filteredDataPoints) {
     d3
       .forceCollide()
       .strength(1)
-      .radius((d) => d.r * zoomLevel)
+      .radius((d) => zoomScale(d.data))
       .iterations(1)
   );
 }
@@ -319,6 +326,8 @@ function formatData(data) {
   //    date: ""
   //    data: []
   // }
+
+  const minMaxArray = [];
   const formattedData = data.flatMap((obj) => {
     let rObj = {};
     let uObj = {};
@@ -331,7 +340,6 @@ function formatData(data) {
         x: russiaOrigin.x,
         y: russiaOrigin.y,
         data: parseInt(obj[`${russia + type}`]),
-        r: parseInt(obj[`${russia + type}`]),
         country: russia,
         type: type.slice(1),
       };
@@ -340,7 +348,6 @@ function formatData(data) {
         x: ukraineOrigin.x,
         y: ukraineOrigin.y,
         data: parseInt(obj[`${ukraine + type}`]),
-        r: parseInt(obj[`${ukraine + type}`]),
         country: ukraine,
         type: type.slice(1),
       };
@@ -351,10 +358,15 @@ function formatData(data) {
     dObj.date = obj["Date"];
     dObj.data = dArray;
 
+    const valArray = dArray.map((val) => val.data);
+    minMaxArray.push(...valArray);
+
     return dObj;
   });
+  const min = Math.min(...minMaxArray);
+  const max = Math.max(...minMaxArray);
 
-  return formattedData;
+  return [formattedData, min, max];
 }
 
 (async () => {
@@ -371,10 +383,8 @@ function formatData(data) {
   // Get JSON from csv string
   const data = d3.csvParse(csvString);
 
-  console.log(data);
   // Format data
-  totalData = formatData(data);
-  const latestSet = totalData[dateSlider.value - 1];
+  const [totalData, min, max] = formatData(data);
 
   // Set slider attributes
   dateSlider.setAttribute("max", totalData.length);
@@ -385,6 +395,8 @@ function formatData(data) {
     dataPoints = totalData[sliderValue];
     filterData();
   };
+
+  zoomScale = d3.scaleLinear().domain([min, max]).range([11, 250]);
 
   // Set latest date
   selectedDate = totalData[dateSlider.value - 1].date;
