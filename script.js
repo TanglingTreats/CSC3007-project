@@ -280,7 +280,7 @@ function displayData(filteredDataPoints) {
           d3.selectAll("text").style("opacity", (c) => {
             if (c.type !== d.type) return 0.5;
           });
-          tooltip.html(`${d.type}`).style("opacity", 1);
+          tooltip.html(`${d.type} ${d.data}`).style("opacity", 1);
         })
         .on("mouseout", (event, d) => {
           d3.select(event.target).attr("class", "circle-border");
@@ -297,10 +297,12 @@ function displayData(filteredDataPoints) {
         return size;
       });
       update.select(".type-label").text((d) => {
-        if (zoomScale(d.data) >= limit) return `${d.type}`;
+        if (zoomScale(d.data) >= limit) {
+          return d.type;
+        }
       });
       update.select(".type-value").text((d) => {
-        return `${d.data}`;
+        return d.data;
       });
       return update;
     }
