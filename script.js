@@ -348,7 +348,7 @@ function initChart(data) {
         .strength(0.08)
         .y(height / 2)
     )
-    .force("charge", d3.forceManyBody().strength(20))
+    .force("charge", d3.forceManyBody().strength(0.6))
     .force("collide", collideForces)
     .alphaTarget(0.3)
     .on("tick", ticking);
