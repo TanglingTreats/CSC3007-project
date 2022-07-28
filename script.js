@@ -28,7 +28,7 @@ const stories = [
   },
   {
     date: "2022-03-15",
-    text: "Ukrainian Air Force destroy mulitple Russian helicopters",
+    text: "Ukrainian Air Force destroy multiple Russian helicopters",
   },
   {
     date: "2022-03-24",
