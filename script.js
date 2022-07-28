@@ -217,12 +217,12 @@ function updateWindowSize() {
 
   if (windowDimensions.width > 1900) {
     tooltip
-      .style("top", (windowDimensions.height - offset.height) / 5)
-      .style("left", (windowDimensions.width - offset.width) / 2);
+      .style("top", windowDimensions.height / 5 - offset.height)
+      .style("left", windowDimensions.width / 2 - offset.width);
   } else {
     tooltip
-      .style("top", (windowDimensions.height - offset.height) / 4)
-      .style("left", (windowDimensions.width - offset.width) / 2);
+      .style("top", windowDimensions.height / 4 - offset.height)
+      .style("left", windowDimensions.width / 2 - offset.width);
   }
 }
 
@@ -354,6 +354,35 @@ function initChart(data) {
     .on("tick", ticking);
 }
 
+/*
+ * {
+ *   type: string
+ *   russia: number
+ *   ukraine: number
+ * }
+ */
+function tooltipFormatter(armyData) {
+  let isUkraineMore = false;
+  let difference = armyData.russia - armyData.ukraine;
+  const sum = armyData.russia + armyData.ukraine;
+
+  let percentage;
+
+  if (difference < 0) {
+    isUkraineMore = true;
+    difference *= -1;
+  }
+  percentage = Math.round((difference / sum) * 100, 2);
+
+  const moreSide = isUkraineMore ? "Ukraine" : "Russia";
+  const lessSide = !isUkraineMore ? "Ukraine" : "Russia";
+
+  return (
+    `There is a difference of ${difference} units lost between Russia & Ukraine.<br/>` +
+    `${moreSide} lost ${percentage}% more ${armyData.type} units than ${lessSide}`
+  );
+}
+
 // Main function to re-render data and update simulation
 function displayData(filteredDataPoints) {
   node = svg.selectAll("g").data(filteredDataPoints, (d) => d.id);
@@ -371,7 +400,18 @@ function displayData(filteredDataPoints) {
           d3.selectAll("text").style("opacity", (c) => {
             if (c.type !== d.type) return 0.5;
           });
-          tooltip.html(`${d.type} ${d.data}`).style("opacity", 1);
+          const oppositeCircle = filteredDataPoints.find(
+            (point) => point.type === d.type && point.country !== d.country
+          );
+          const armyData = {
+            type: d.type,
+            [d.country.toLowerCase()]: d.data,
+            [oppositeCircle.country.toLowerCase()]: oppositeCircle.data,
+          };
+
+          const tooltipText = tooltipFormatter(armyData);
+
+          tooltip.html(`${tooltipText}`).style("opacity", 1);
           updateWindowSize();
         })
         .on("mouseout", (event, d) => {
@@ -387,6 +427,7 @@ function displayData(filteredDataPoints) {
 
       g.append("circle")
         .attr("id", (d) => d.id)
+        .attr("class", (d) => d.type)
         .attr("r", (d) => {
           return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
         })
@@ -550,7 +591,6 @@ function formatData(data) {
 
   // Format data
   const [totalData, min, max] = formatData(data);
-  console.log(totalData);
 
   // Set slider attributes
   dateSlider.setAttribute("max", totalData.length);
