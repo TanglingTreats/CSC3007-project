@@ -128,7 +128,7 @@ let windowDimensions = {
 window.onresize = updateWindowSize;
 
 const width = 1300;
-const height = 600;
+const height = 500;
 
 const oneThirdWidth = width / 3;
 
