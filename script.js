@@ -100,6 +100,7 @@ const stories = [
   },
 ];
 
+// DOM Objects
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 const dateSlider = document.getElementById("date-slider");
@@ -107,6 +108,7 @@ const storyboard = document.getElementById("storyboard");
 
 dateSlider.value = 50;
 
+// Data arrays
 let currFilter = ["all"];
 let selectedDate = "";
 let totalData = [];
@@ -115,23 +117,28 @@ let filteredData = [];
 
 let isInit = true;
 
+// Limits for rendering text
 const labelLimit = 35;
 const valLimit = 12;
 
+// Multiplier to change circle size
 let multiplier = 4;
 let scoreMulti = 2;
 
+// Get window dimensions
 let windowDimensions = {
   width: document.body.clientWidth,
   height: document.body.clientHeight,
 };
 window.onresize = updateWindowSize;
 
+// Chart dimensions
 const width = 1300;
 const height = 500;
 
 const oneThirdWidth = width / 3;
 
+// Origins for Russian and Ukrainian data
 const russiaOrigin = {
   x: oneThirdWidth,
   y: height / 2,
@@ -179,6 +186,8 @@ let node;
 let simulation;
 let nodeG;
 
+let collideForces;
+
 // Format date in the form of DD MMM YYYY
 function formatDate(date) {
   const options = {
@@ -195,6 +204,7 @@ function displayDate(date) {
   dateSpan.innerText = date;
 }
 
+// Update window dimensions
 function updateWindowSize() {
   windowDimensions.width = document.body.clientWidth;
   windowDimensions.height = document.body.clientHeight;
@@ -216,6 +226,7 @@ function updateWindowSize() {
   }
 }
 
+// Define checkbox function
 function checkboxFunction(event) {
   const checkboxes = Array.from(document.getElementsByClassName("checkbox"));
   const checkbox = event.target;
@@ -260,8 +271,9 @@ function checkboxFunction(event) {
   filterData();
 }
 
+// Create filter labels with checkboxes
 function createFilters() {
-  // Create all
+  // Create all checkbox
   const type = "All";
   const checkbox = document.createElement("input");
   checkbox.id = type.toLowerCase();
@@ -299,6 +311,7 @@ function createFilters() {
   }
 }
 
+// Filter data based on filters and time
 function filterData() {
   const data = dataPoints.data;
   const filteredDataPoints = data.filter(
@@ -313,8 +326,12 @@ function filterData() {
   displayData(filteredDataPoints);
 }
 
+// Initialize chart and simulation
 function initChart(data) {
-  //svg.select("g").append("g").attr("id", "nodes");
+  collideForces = d3
+    .forceCollide()
+    .strength(1)
+    .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti);
   simulation = d3
     .forceSimulation(data)
     .force(
@@ -332,20 +349,16 @@ function initChart(data) {
         .y(height / 2)
     )
     .force("charge", d3.forceManyBody().strength(20))
-    .force(
-      "collide",
-      d3
-        .forceCollide()
-        .strength(1)
-        .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
-    )
+    .force("collide", collideForces)
     .alphaTarget(0.3)
     .on("tick", ticking);
 }
 
+// Main function to re-render data and update simulation
 function displayData(filteredDataPoints) {
   node = svg.selectAll("g").data(filteredDataPoints, (d) => d.id);
 
+  // Join function to define the 'what' for circle and labels
   nodeG = node.join(
     (enter) => {
       let g = enter
@@ -375,8 +388,6 @@ function displayData(filteredDataPoints) {
       g.append("circle")
         .attr("id", (d) => d.id)
         .attr("r", (d) => {
-          const size = zoomScale(d.data);
-          //return size;
           return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
         })
         .style("fill", (d) => countryColorScale(d.country));
@@ -432,11 +443,13 @@ function displayData(filteredDataPoints) {
           });
           tooltip.style("opacity", 0);
         });
-      update.select("circle").attr("r", (d) => {
-        const size = zoomScale(d.data);
-        //return size;
-        return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
-      });
+      update
+        .select("circle")
+        .transition()
+        .duration(400)
+        .attr("r", (d) => {
+          return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
+        });
       update.select(".type-label").text((d) => {
         if (
           Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
@@ -457,20 +470,15 @@ function displayData(filteredDataPoints) {
     }
   );
 
-  simulation.nodes(filteredDataPoints).force(
-    "collide",
-    d3
-      .forceCollide()
-      .strength(1)
-      .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
-      .iterations(1)
-  );
+  simulation.nodes(filteredDataPoints).force("collide");
+  //simulation.force("collide").initialize(filteredDataPoints);
 }
 
 function ticking() {
   nodeG.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
 }
 
+// Format data from original
 function formatData(data) {
   // Form data of
   // {
@@ -525,6 +533,7 @@ function formatData(data) {
   return [formattedData, min, max];
 }
 
+// Fetch data from csv
 (async () => {
   const res = await fetch(target, {
     method: "get",
@@ -574,6 +583,7 @@ function formatData(data) {
     filterData();
   };
 
+  // Initialise scale for zooming (Deprecated)
   zoomScale = d3.scaleLinear().domain([min, max]).range([11, 250]);
 
   // Set selected date
@@ -596,6 +606,7 @@ function formatData(data) {
   p.innerHTML = currStory.text;
   storyboard.innerHTML = "";
   storyboard.append(p);
+
   displayDate(formatDate(new Date(selectedDate)));
   createFilters();
 
