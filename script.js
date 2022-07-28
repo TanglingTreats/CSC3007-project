@@ -217,11 +217,11 @@ function updateWindowSize() {
 
   if (windowDimensions.width > 1900) {
     tooltip
-      .style("top", windowDimensions.height / 5 - offset.height)
+      .style("top", windowDimensions.height / 4 - offset.height)
       .style("left", windowDimensions.width / 2 - offset.width);
   } else {
     tooltip
-      .style("top", windowDimensions.height / 4 - offset.height)
+      .style("top", windowDimensions.height / 3 - offset.height)
       .style("left", windowDimensions.width / 2 - offset.width);
   }
 }
