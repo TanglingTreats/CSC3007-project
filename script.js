@@ -442,6 +442,7 @@ function displayData(filteredDataPoints) {
           )
             return `${d.type}`;
         })
+        .style("fill", (d) => (d.country === russia ? "black" : "white"))
         .attr("dy", "-0.5em")
         .attr("text-anchor", "middle");
 
@@ -455,6 +456,7 @@ function displayData(filteredDataPoints) {
             return d.data;
           }
         })
+        .style("fill", (d) => (d.country === russia ? "black" : "white"))
         .attr("dy", "0.5em")
         .attr("text-anchor", "middle");
 
