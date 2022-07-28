@@ -100,6 +100,7 @@ const stories = [
   },
 ];
 
+// DOM Objects
 const dateSpan = document.getElementById("current-date");
 const filters = document.getElementById("filters");
 const dateSlider = document.getElementById("date-slider");
@@ -107,6 +108,7 @@ const storyboard = document.getElementById("storyboard");
 
 dateSlider.value = 50;
 
+// Data arrays
 let currFilter = ["all"];
 let selectedDate = "";
 let totalData = [];
@@ -115,23 +117,28 @@ let filteredData = [];
 
 let isInit = true;
 
+// Limits for rendering text
 const labelLimit = 35;
 const valLimit = 12;
 
+// Multiplier to change circle size
 let multiplier = 4;
 let scoreMulti = 2;
 
+// Get window dimensions
 let windowDimensions = {
   width: document.body.clientWidth,
   height: document.body.clientHeight,
 };
 window.onresize = updateWindowSize;
 
+// Chart dimensions
 const width = 1300;
 const height = 500;
 
 const oneThirdWidth = width / 3;
 
+// Origins for Russian and Ukrainian data
 const russiaOrigin = {
   x: oneThirdWidth,
   y: height / 2,
@@ -179,6 +186,8 @@ let node;
 let simulation;
 let nodeG;
 
+let collideForces;
+
 // Format date in the form of DD MMM YYYY
 function formatDate(date) {
   const options = {
@@ -195,6 +204,7 @@ function displayDate(date) {
   dateSpan.innerText = date;
 }
 
+// Update window dimensions
 function updateWindowSize() {
   windowDimensions.width = document.body.clientWidth;
   windowDimensions.height = document.body.clientHeight;
@@ -207,15 +217,16 @@ function updateWindowSize() {
 
   if (windowDimensions.width > 1900) {
     tooltip
-      .style("top", (windowDimensions.height - offset.height) / 5)
-      .style("left", (windowDimensions.width - offset.width) / 2);
+      .style("top", windowDimensions.height / 5 - offset.height)
+      .style("left", windowDimensions.width / 2 - offset.width);
   } else {
     tooltip
-      .style("top", (windowDimensions.height - offset.height) / 4)
-      .style("left", (windowDimensions.width - offset.width) / 2);
+      .style("top", windowDimensions.height / 4 - offset.height)
+      .style("left", windowDimensions.width / 2 - offset.width);
   }
 }
 
+// Define checkbox function
 function checkboxFunction(event) {
   const checkboxes = Array.from(document.getElementsByClassName("checkbox"));
   const checkbox = event.target;
@@ -260,8 +271,9 @@ function checkboxFunction(event) {
   filterData();
 }
 
+// Create filter labels with checkboxes
 function createFilters() {
-  // Create all
+  // Create all checkbox
   const type = "All";
   const checkbox = document.createElement("input");
   checkbox.id = type.toLowerCase();
@@ -299,6 +311,7 @@ function createFilters() {
   }
 }
 
+// Filter data based on filters and time
 function filterData() {
   const data = dataPoints.data;
   const filteredDataPoints = data.filter(
@@ -313,8 +326,12 @@ function filterData() {
   displayData(filteredDataPoints);
 }
 
+// Initialize chart and simulation
 function initChart(data) {
-  //svg.select("g").append("g").attr("id", "nodes");
+  collideForces = d3
+    .forceCollide()
+    .strength(1)
+    .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti);
   simulation = d3
     .forceSimulation(data)
     .force(
@@ -332,20 +349,45 @@ function initChart(data) {
         .y(height / 2)
     )
     .force("charge", d3.forceManyBody().strength(20))
-    .force(
-      "collide",
-      d3
-        .forceCollide()
-        .strength(1)
-        .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
-    )
+    .force("collide", collideForces)
     .alphaTarget(0.3)
     .on("tick", ticking);
 }
 
+/*
+ * {
+ *   type: string
+ *   russia: number
+ *   ukraine: number
+ * }
+ */
+function tooltipFormatter(armyData) {
+  let isUkraineMore = false;
+  let difference = armyData.russia - armyData.ukraine;
+  const sum = armyData.russia + armyData.ukraine;
+
+  let percentage;
+
+  if (difference < 0) {
+    isUkraineMore = true;
+    difference *= -1;
+  }
+  percentage = Math.round((difference / sum) * 100, 2);
+
+  const moreSide = isUkraineMore ? "Ukraine" : "Russia";
+  const lessSide = !isUkraineMore ? "Ukraine" : "Russia";
+
+  return (
+    `There is a difference of ${difference} units lost between Russia & Ukraine.<br/>` +
+    `${moreSide} lost ${percentage}% more ${armyData.type} units than ${lessSide}`
+  );
+}
+
+// Main function to re-render data and update simulation
 function displayData(filteredDataPoints) {
   node = svg.selectAll("g").data(filteredDataPoints, (d) => d.id);
 
+  // Join function to define the 'what' for circle and labels
   nodeG = node.join(
     (enter) => {
       let g = enter
@@ -358,7 +400,18 @@ function displayData(filteredDataPoints) {
           d3.selectAll("text").style("opacity", (c) => {
             if (c.type !== d.type) return 0.5;
           });
-          tooltip.html(`${d.type} ${d.data}`).style("opacity", 1);
+          const oppositeCircle = filteredDataPoints.find(
+            (point) => point.type === d.type && point.country !== d.country
+          );
+          const armyData = {
+            type: d.type,
+            [d.country.toLowerCase()]: d.data,
+            [oppositeCircle.country.toLowerCase()]: oppositeCircle.data,
+          };
+
+          const tooltipText = tooltipFormatter(armyData);
+
+          tooltip.html(`${tooltipText}`).style("opacity", 1);
           updateWindowSize();
         })
         .on("mouseout", (event, d) => {
@@ -374,9 +427,8 @@ function displayData(filteredDataPoints) {
 
       g.append("circle")
         .attr("id", (d) => d.id)
+        .attr("class", (d) => d.type)
         .attr("r", (d) => {
-          const size = zoomScale(d.data);
-          //return size;
           return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
         })
         .style("fill", (d) => countryColorScale(d.country));
@@ -432,11 +484,13 @@ function displayData(filteredDataPoints) {
           });
           tooltip.style("opacity", 0);
         });
-      update.select("circle").attr("r", (d) => {
-        const size = zoomScale(d.data);
-        //return size;
-        return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
-      });
+      update
+        .select("circle")
+        .transition()
+        .duration(400)
+        .attr("r", (d) => {
+          return Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti;
+        });
       update.select(".type-label").text((d) => {
         if (
           Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti >=
@@ -457,20 +511,15 @@ function displayData(filteredDataPoints) {
     }
   );
 
-  simulation.nodes(filteredDataPoints).force(
-    "collide",
-    d3
-      .forceCollide()
-      .strength(1)
-      .radius((d) => Math.sqrt((d.data * multiplier) / Math.PI) * scoreMulti)
-      .iterations(1)
-  );
+  simulation.nodes(filteredDataPoints).force("collide");
+  //simulation.force("collide").initialize(filteredDataPoints);
 }
 
 function ticking() {
   nodeG.attr("transform", (d) => `translate(${d.x}, ${d.y})`);
 }
 
+// Format data from original
 function formatData(data) {
   // Form data of
   // {
@@ -525,6 +574,7 @@ function formatData(data) {
   return [formattedData, min, max];
 }
 
+// Fetch data from csv
 (async () => {
   const res = await fetch(target, {
     method: "get",
@@ -541,7 +591,6 @@ function formatData(data) {
 
   // Format data
   const [totalData, min, max] = formatData(data);
-  console.log(totalData);
 
   // Set slider attributes
   dateSlider.setAttribute("max", totalData.length);
@@ -574,6 +623,7 @@ function formatData(data) {
     filterData();
   };
 
+  // Initialise scale for zooming (Deprecated)
   zoomScale = d3.scaleLinear().domain([min, max]).range([11, 250]);
 
   // Set selected date
@@ -596,6 +646,7 @@ function formatData(data) {
   p.innerHTML = currStory.text;
   storyboard.innerHTML = "";
   storyboard.append(p);
+
   displayDate(formatDate(new Date(selectedDate)));
   createFilters();
 
