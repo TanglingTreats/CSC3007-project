@@ -166,9 +166,13 @@
                          a public google datasheet that is updated daily.
                       </p>
                     </hr>
-                      <h4>Improved Visualization from Milestone 1</h4>
+                     <h4>Original Visualization</h4>
+                     <img src="images/upload/originalVisualization.png" alt="" class="img-responsive img-thumbnail">
+                      <h4>Improved Visualization</h4>
                       <img src="images/upload/improvedVisualization.png" alt="" class="img-responsive img-thumbnail">
-                      <h4>Designed decisions</h4>
+                      <p>Based on the feedbacks that we gathered on the improved visualization, we came up with our design
+                        decisions for the basis of our new visualization.</p>
+                      <h4>Design Decisions</h4>
                       <ul>
                         <li>Color Conundrum:
                             <ul>
@@ -182,8 +186,8 @@
                             </ul>
                         </li>
                         </ul>
-
-                      <p>Through this documentation, we will talk about the approaches made and challenges we faced with improving the visualization even further.</p>
+                       <p>Through this documentation, we will talk about the approaches made and challenges 
+                        faced while doing so.</p> 
                     </hr>
                     </div>
                   </div>
@@ -210,10 +214,13 @@
                     <li>Quantitative Data:
                         <ul>
                             <li>Represent the value of unit losses for each country</li>
-                            <li>Value is accumulated through date slider</li>
                         </ul>
                     </li>
-                    <li>Data comes from public Google Sheet</li>
+                    <li>Quanlitative Data:
+                      <ul>
+                          <li>Represent the dates filter</li>
+                      </ul>
+                  </li>
                 </ul>
               </div>
               <!-- end row -->
@@ -233,7 +240,6 @@
                     </li>
                     <li>Understand and compare proportion of unit losses</li>
                     <li>Showcase the Russia's objective of suppressing the type of unit</li>
-                    <li>Tooltip is used for interaction and display information of the user’s desire</li>
                 </ul>
               </div>
               <!-- end row -->
@@ -245,7 +251,7 @@
                 <ul>
                     <li>The size of bubble represent the amount of values</li>
                     <li>Clear separation of bubble between the unit losses of Russia and Ukraine</li>
-                    <li>Date slider to see identify the chart patterns indicating the unit losses over time</li>
+                    <li>Tooltip is used for interaction and display information of the user’s desire</li>
                     <li>Filtering allows users to focus on the overall or specific output</li>
                 </ul>
               </div>
@@ -288,10 +294,21 @@
 
                 <u>Design Principles</u>
                 <ul>
-                    <li>The size of bubble represent the amount of values</li>
-                    <li>Clear separation of bubble between the unit losses of Russia and Ukraine</li>
-                    <li>Date slider to see identify the chart patterns indicating the unit losses over time</li>
-                    <li>Filtering allows users to focus on the overall or specific output</li>
+                    <li>Emphasise the Key Areas:
+                      <ul>
+                        <li>Draws the user’s attention to the right data points by carefully choosing the size and colours</li>
+                      </ul>
+                    </li>
+                    <li>Smart Use of Patterns:
+                      <ul>
+                        <li>Similar forms of information can be shown as one cohesive unit across the page by using patterns</li>
+                      </ul>
+                    </li>
+                    <li>Proportion:
+                      <ul>
+                        <li>Indicate the weight of different data sets and the relationship between their values</li>
+                      </ul>
+                    </li>
                 </ul>
               </div>
               <!-- end row -->
@@ -313,61 +330,12 @@
               <div class="row">
                 <div class="col-md-12">
                   <p>
-                    Lorem the It is a long established fact that a reader will
-                    be distracted by the readable content of a page when looking
-                    at its layout. The point of using Lorem Ipsum is that it has
-                    a more-or-less normal distribution of letters, as opposed to
-                    using 'Content here, content here', making it look like
-                    readable English.
+                    We implemented the chart and created the data visualisation 
+                    components using HTML, JS w/ d3 and CSS.  We used HTML and CSS to create and describe the 
+                    elements in the visualisation. We made the data interactive  using our own implementation 
+                    of transformation and transition functions. 
                   </p>
 
-                  <h4>D3.js</h4>
-
-                  <pre class="brush: html; highlight: [2,4]">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                        YOUR CODES GOES HERE
-                                    </div>
-                                </div>
-                            </div></pre>
-
-                  <p>
-                    Our you can use the grid system with 2 columns like this;
-                  </p>
-
-                  <pre class="brush: html">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                        YOUR CODES GOES HERE
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                        YOUR CODES GOES HERE
-                                    </div>
-                                </div>
-                            </div>
-                         </pre>
-
-                  <p>
-                    Our you can use the grid system with 3 columns like this;
-                  </p>
-
-                  <pre class="brush: html">
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                                        YOUR CODES GOES HERE
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                                        YOUR CODES GOES HERE
-                                    </div>
-                                    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
-                                        YOUR CODES GOES HERE
-                                    </div>
-                                </div>
-                            </div>
-                         </pre>
                 </div>
                 <!-- end col -->
               </div>
@@ -388,38 +356,7 @@
               <!-- end row -->
 
               <div class="row">
-                <h4>Alan</h4>
-                <p>
-                  Lorem the It is a long established fact that a reader will be
-                  distracted by the readable content of a page when looking at
-                  its layout. The point of using Lorem Ipsum is that it has a
-                  more-or-less normal distribution of letters, as opposed to
-                  using 'Content here, content here', making it look like
-                  readable English. long established fact that a reader will
-                  English.
-                </p>
-
-                <h4>Edwin</h4>
-                <p>
-                  Lorem the It is a long established fact that a reader will be
-                  distracted by the readable content of a page when looking at
-                  its layout. The point of using Lorem Ipsum is that it has a
-                  more-or-less normal distribution of letters, as opposed to
-                  using 'Content here, content here', making it look like
-                  readable English. long established fact that a reader will
-                  English.
-                </p>
-
-                <h4>Justin</h4>
-                <p>
-                  Lorem the It is a long established fact that a reader will be
-                  distracted by the readable content of a page when looking at
-                  its layout. The point of using Lorem Ipsum is that it has a
-                  more-or-less normal distribution of letters, as opposed to
-                  using 'Content here, content here', making it look like
-                  readable English. long established fact that a reader will
-                  English.
-                </p>
+                <p>Each of the team member contributed to the entire project equally.</p>
                 <!-- </div> -->
               </div>
               <!-- end row -->
@@ -442,10 +379,14 @@
 
               <div class="row">
                 <div class="col-md-12">
-                    <h4>Grouping of equipment losses based on status</h4>
-                  <p>
-                    All the equipments that were lost are categorized under three different groups: "Abandoned", "Captured" and "Destroyed".
-                    Based on the groups that each individual equipment is grouped under, it will be highlighted in the bubble chart accordingly.
+                  <h4>Charts Integration</h4>
+                  <p>Instead of having just one chart to 
+                    showcase all the data, we could create multiple charts to tell different stories
+                  </p>
+                  <h4>Data For equipments deployed</h4>
+                  <p>Get access to the total number of units deployed to each unit types and create 
+                    a chart to show the proportion between the total units deployed and total units 
+                    lost between each country and each unit types.
                   </p>
                 </div>
               </div>
